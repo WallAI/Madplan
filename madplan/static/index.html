@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Madplan</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥕</text></svg>">
+<style>
+:root {
+  --bg: #faf7f2; --card: #ffffff; --ink: #1f2a24; --muted: #6b746e; --line: #e8e2d8;
+  --accent: #2f7d4f; --accent-ink: #ffffff; --accent-soft: #e3f1e8; --warm: #c4622d; --warm-soft: #fbe9de;
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.05); --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #141815; --card: #1d231f; --ink: #e9efe9; --muted: #9aa59d; --line: #2e3631;
+    --accent: #5cc187; --accent-ink: #0d1a12; --accent-soft: #1f3a2a; --warm: #ee9a6c; --warm-soft: #3a261b;
+    --shadow: 0 1px 2px rgba(0,0,0,.3); }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 16px 16px 120px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0 20px; }
+h1 { font-size: 28px; margin: 0; letter-spacing: -.02em; }
+h1 span { color: var(--accent); }
+h2 { font-size: 20px; margin: 0 0 4px; }
+h3 { font-size: 15px; margin: 18px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+p.sub { margin: 0 0 16px; color: var(--muted); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--ink); font-size: 13px; }
+.chip.warm { background: var(--warm-soft); }
+section.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 20px; margin-bottom: 18px; }
+.step { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 14px; margin-right: 8px; }
+button, .btn { font: inherit; border: 0; border-radius: 10px; padding: 10px 16px; cursor: pointer;
+  background: var(--accent); color: var(--accent-ink); font-weight: 600; text-decoration: none; display: inline-block; }
+button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 500; }
+button.small { padding: 5px 10px; font-size: 13px; }
+button:disabled { opacity: .5; cursor: default; }
+input[type=text], input[type=email], input[type=password], input[type=url], select {
+  font: inherit; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--bg); color: var(--ink); min-width: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.grow { flex: 1 1 200px; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--line); cursor: pointer; font-size: 14px; user-select: none; }
+.toggle input { display: none; }
+.toggle.on { background: var(--accent-soft); border-color: var(--accent); }
+.recipes { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+.recipe { border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 8px; background: var(--card); }
+.recipe.off { opacity: .45; }
+.recipe .emoji { font-size: 34px; line-height: 1; }
+.recipe .title { font-weight: 700; font-size: 17px; }
+.recipe .meta { color: var(--muted); font-size: 13px; }
+.recipe .why { font-size: 13px; color: var(--accent); }
+.recipe .actions { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.recipe details { font-size: 14px; }
+.recipe details ul, .recipe details ol { padding-left: 18px; margin: 6px 0; }
+.items { display: flex; flex-direction: column; }
+.item { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.item:first-child { border-top: 0; }
+.item input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); }
+.item .name { font-weight: 600; }
+.item .name::first-letter { text-transform: uppercase; }
+.item .prod { font-size: 13px; color: var(--muted); }
+.item .note { font-size: 12px; color: var(--muted); }
+.item .note.hist { color: var(--accent); }
+.qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.qty button { background: transparent; color: var(--ink); padding: 4px 10px; border-radius: 0; }
+.qty span { min-width: 26px; text-align: center; font-variant-numeric: tabular-nums; }
+.right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.price { font-variant-numeric: tabular-nums; font-size: 14px; }
+.swap { grid-column: 2 / -1; display: flex; flex-direction: column; gap: 6px; }
+.swap .opt { display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 14px; }
+.swap .opt:hover { border-color: var(--accent); }
+footer.bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
+  padding: 12px 16px; display: none; }
+footer.bar .inner { max-width: 980px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.muted { color: var(--muted); }
+.hidden { display: none !important; }
+.toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg);
+  padding: 10px 16px; border-radius: 10px; font-size: 14px; z-index: 20; max-width: calc(100% - 32px); }
+dialog { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); color: var(--ink); max-width: 480px; width: calc(100% - 32px); padding: 22px; }
+dialog::backdrop { background: rgba(0,0,0,.35); }
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -3px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Mad<span>plan</span> 🥕</h1>
+    <div class="row">
+      <span id="who" class="chip hidden"></span>
+      <button id="logoutBtn" class="ghost small hidden">Log ud</button>
+    </div>
+  </header>
+
+  <!-- Login -->
+  <section id="loginCard" class="card hidden">
+    <h2>Log ind med nemlig.com</h2>
+    <p class="sub">Vi bruger din ordrehistorik til at finde retter og basisvarer. Dit kodeord bliver kun på din computer.</p>
+    <form id="loginForm" class="row">
+      <input id="user" class="grow" type="email" placeholder="E-mail" autocomplete="username" required>
+      <input id="pass" class="grow" type="password" placeholder="Kodeord" autocomplete="current-password" required>
+      <button type="submit">Log ind</button>
+    </form>
+  </section>
+
+  <div id="app" class="hidden">
+    <!-- Profil -->
+    <section class="card">
+      <h2><span class="step">1</span>Det køber du typisk</h2>
+      <p id="profileSub" class="sub"><span class="spinner"></span> Læser din ordrehistorik…</p>
+      <div id="topProducts" class="chips"></div>
+    </section>
+
+    <!-- Retter -->
+    <section class="card">
+      <h2><span class="step">2</span>Ugens retter</h2>
+      <p class="sub">Forslag ud fra det, du plejer at købe. Byt dem, du ikke vil have.</p>
+      <div class="row">
+        <label>Retter <select id="count"></select></label>
+        <label>Personer <select id="persons"></select></label>
+        <span id="prefs" class="row"></span>
+        <button id="newPlan" class="ghost">🔀 Nye forslag</button>
+      </div>
+      <div id="recipes" class="recipes"></div>
+      <form id="importForm" class="row" style="margin-top:16px">
+        <input id="importUrl" class="grow" type="url" placeholder="Har du en opskrift? Indsæt link, fx fra valdemarsro.dk">
+        <button class="ghost" type="submit">Tilføj</button>
+      </form>
+      <div class="row" style="margin-top:16px">
+        <button id="makeList">Lav indkøbsliste →</button>
+      </div>
+    </section>
+
+    <!-- Indkøbsliste -->
+    <section id="listCard" class="card hidden">
+      <h2><span class="step">3</span>Indkøbsliste</h2>
+      <p class="sub">Tjek listen. Fjern det, du har. Derefter lægger vi det i din kurv på nemlig.com.</p>
+      <div id="listBody"></div>
+    </section>
+  </div>
+</main>
+
+<footer id="bar" class="bar">
+  <div class="inner">
+    <div><strong id="barCount">0 varer</strong> <span class="muted" id="barTotal"></span></div>
+    <button id="toCart">Læg i kurv 🛒</button>
+  </div>
+</footer>
+
+<dialog id="confirmDlg">
+  <h2>Læg i kurven?</h2>
+  <p id="confirmText"></p>
+  <p class="muted" style="font-size:14px">Vi lægger kun varerne i kurven. Du betaler og vælger levering selv på nemlig.com.</p>
+  <div class="row" style="justify-content:flex-end">
+    <button class="ghost" id="cancelCart">Annullér</button>
+    <button id="okCart">Ja, læg i kurv</button>
+  </div>
+</dialog>
+
+<dialog id="doneDlg">
+  <h2 id="doneTitle">Kurven er klar 🎉</h2>
+  <div id="doneBody"></div>
+  <div class="row" style="justify-content:flex-end;margin-top:14px">
+    <button class="ghost" onclick="doneDlg.close()">Luk</button>
+    <a id="basketLink" class="btn" target="_blank" rel="noopener">Gå til kurven og betal</a>
+  </div>
+</dialog>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const S = { status: null, profile: null, plan: [], off: new Set(), list: null, prefs: new Set() };
+const kr = (n) => n == null ? "" : n.toLocaleString("da-DK", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " kr";
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function toast(msg, ms = 3500) {
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), ms);
+}
+
+async function api(path, body, method) {
+  const r = await fetch(path, { method: method || (body ? "POST" : "GET"),
+    headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined });
+  const data = await r.json().catch(() => ({}));
+  if (r.status === 401) { showLogin(); throw new Error(data.detail || "Log ind først"); }
+  if (!r.ok) throw new Error(data.detail || `Fejl ${r.status}`);
+  return data;
+}
+
+function showLogin() { $("#loginCard").classList.remove("hidden"); $("#app").classList.add("hidden"); $("#bar").style.display = "none"; }
+
+async function boot() {
+  S.status = await api("/api/status");
+  for (let i = 1; i <= 7; i++) $("#count").add(new Option(i, i, false, i === 5));
+  for (let i = 1; i <= 8; i++) $("#persons").add(new Option(i, i, false, i === 4));
+  try { const saved = JSON.parse(localStorage.getItem("madplan.settings") || "{}");
+    if (saved.count) $("#count").value = saved.count; if (saved.persons) $("#persons").value = saved.persons;
+    (saved.prefs || []).forEach((p) => S.prefs.add(p)); } catch {}
+  $("#prefs").innerHTML = Object.entries(S.status.preferences).map(([k, v]) =>
+    `<label class="toggle ${S.prefs.has(k) ? "on" : ""}" data-k="${k}"><input type="checkbox">${esc(v)}</label>`).join("");
+  $("#prefs").querySelectorAll(".toggle").forEach((el) => el.onclick = (e) => {
+    e.preventDefault(); const k = el.dataset.k;
+    S.prefs.has(k) ? S.prefs.delete(k) : S.prefs.add(k); el.classList.toggle("on"); saveSettings(); newPlan(); });
+  if (S.status.logged_in) start(); else showLogin();
+}
+
+function saveSettings() {
+  try { localStorage.setItem("madplan.settings", JSON.stringify({ count: $("#count").value, persons: $("#persons").value, prefs: [...S.prefs] })); } catch {}
+}
+
+async function start() {
+  $("#loginCard").classList.add("hidden"); $("#app").classList.remove("hidden");
+  $("#who").textContent = S.status.demo ? "Demo-tilstand" : (S.status.username || "Logget ind");
+  $("#who").classList.remove("hidden"); $("#who").classList.toggle("warm", S.status.demo);
+  $("#logoutBtn").classList.toggle("hidden", S.status.demo);
+  loadProfile().then(newPlan);
+}
+
+async function loadProfile() {
+  try {
+    const p = S.profile = await api("/api/profile");
+    if (!p.order_count) { $("#profileSub").textContent = p.warning || "Ingen ordrer fundet. Forslagene er generelle."; return; }
+    const from = p.first_date ? new Date(p.first_date).toLocaleDateString("da-DK") : "";
+    $("#profileSub").textContent = `${p.order_count} ordrer${from ? " siden " + from : ""}. Dine mest købte varer:`;
+    $("#topProducts").innerHTML = p.top_products.slice(0, 12).map((x) =>
+      `<span class="chip">${esc(x.name)} <span class="muted">${x.orders}×</span></span>`).join("");
+  } catch (e) { $("#profileSub").textContent = e.message; }
+}
+
+async function newPlan() {
+  $("#recipes").innerHTML = `<p class="muted"><span class="spinner"></span> Finder lækre retter…</p>`;
+  try {
+    const r = await api("/api/suggest", { count: +$("#count").value, prefs: [...S.prefs], seed: Date.now() % 100000 });
+    S.plan = r.recipes; S.off.clear(); renderPlan();
+    if (S.plan.length < +$("#count").value) toast("Der er ikke flere retter, der passer til dine valg.");
+  } catch (e) { $("#recipes").innerHTML = `<p class="muted">${esc(e.message)}</p>`; }
+}
+
+function renderPlan() {
+  $("#recipes").innerHTML = S.plan.map((r, i) => `
+    <article class="recipe ${S.off.has(r.id) ? "off" : ""}">
+      <div class="emoji">${r.emoji}</div>
+      <div class="title">${esc(r.title)}</div>
+      <div class="meta">${r.minutes ? r.minutes + " min · " : ""}${esc(r.description)}</div>
+      ${r.reasons && r.reasons.length ? `<div class="why">✓ Du køber ofte: ${r.reasons.map(esc).join(", ")}</div>` : ""}
+      <details><summary>Se opskrift</summary>
+        <ul>${r.ingredients.map((g) => `<li>${g.amount ? esc(+g.amount.toFixed(1)) + " " + esc(g.unit) + " " : ""}${esc(g.name)}${g.pantry ? ' <span class="muted">(skab)</span>' : ""}</li>`).join("")}</ul>
+        ${r.steps.length ? `<ol>${r.steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>` : ""}
+        ${r.source_url ? `<a href="${esc(r.source_url)}" target="_blank" rel="noopener">Åbn original</a>` : ""}
+      </details>
+      <div class="actions">
+        <button class="ghost small" data-swap="${i}">🔁 Byt</button>
+        <button class="ghost small" data-toggle="${r.id}">${S.off.has(r.id) ? "＋ Tag med" : "✕ Spring over"}</button>
+      </div>
+    </article>`).join("");
+  $("#recipes").querySelectorAll("[data-swap]").forEach((b) => b.onclick = () => swap(+b.dataset.swap));
+  $("#recipes").querySelectorAll("[data-toggle]").forEach((b) => b.onclick = () => {
+    const id = b.dataset.toggle; S.off.has(id) ? S.off.delete(id) : S.off.add(id); renderPlan(); });
+}
+
+async function swap(i) {
+  try {
+    const r = await api("/api/suggest", { count: 1, prefs: [...S.prefs], exclude: S.plan.map((x) => x.id), seed: Date.now() % 100000 });
+    if (!r.recipes.length) return toast("Ingen flere retter at bytte med.");
+    S.plan[i] = r.recipes[0]; renderPlan();
+  } catch (e) { toast(e.message); }
+}
+
+async function makeList() {
+  const ids = S.plan.filter((r) => !S.off.has(r.id)).map((r) => r.id);
+  if (!ids.length) return toast("Vælg mindst én ret.");
+  $("#listCard").classList.remove("hidden");
+  $("#listBody").innerHTML = `<p class="muted"><span class="spinner"></span> Finder varer på nemlig.com…</p>`;
+  $("#listCard").scrollIntoView({ behavior: "smooth" });
+  try {
+    S.list = await api("/api/shopping-list", { recipe_ids: ids, persons: +$("#persons").value });
+    renderList();
+  } catch (e) { $("#listBody").innerHTML = `<p class="muted">${esc(e.message)}</p>`; }
+}
+
+function allRows() { return S.list ? [...S.list.items, ...S.list.basics] : []; }
+
+function rowHtml(it, idx) {
+  const p = it.product;
+  const prod = p ? `${esc(p.name)}${p.unit_size ? " · " + esc(p.unit_size) : ""}` : "Ingen vare valgt";
+  return `<div class="item" data-idx="${idx}">
+    <input type="checkbox" ${it.checked ? "checked" : ""} ${p ? "" : "disabled"} data-check="${idx}">
+    <div>
+      <div class="name">${esc(it.name)} ${it.amount_text ? `<span class="muted" style="font-weight:400">· ${esc(it.amount_text)}</span>` : ""}</div>
+      <div class="prod">${prod} <button class="ghost small" data-find="${idx}" style="margin-left:4px">Skift</button></div>
+      <div class="note ${it.source === "history" || it.due != null ? "hist" : ""}">${esc(it.note || "")}${it.recipes ? " · " + it.recipes.map(esc).join(", ") : ""}</div>
+    </div>
+    <div class="right">
+      <div class="qty"><button data-dec="${idx}">−</button><span>${it.quantity}</span><button data-inc="${idx}">+</button></div>
+      <div class="price">${p && p.price != null ? kr(p.price * it.quantity) : ""}</div>
+    </div>
+    <div class="swap hidden" id="swap-${idx}"></div>
+  </div>`;
+}
+
+function renderList() {
+  const rows = allRows(); const nItems = S.list.items.length;
+  const food = rows.slice(0, nItems).map((it, i) => [it, i]).filter(([it]) => !it.pantry);
+  const pantry = rows.slice(0, nItems).map((it, i) => [it, i]).filter(([it]) => it.pantry);
+  const basics = rows.slice(nItems).map((it, i) => [it, i + nItems]);
+  const group = (title, list) => list.length ? `<h3>${title}</h3><div class="items">${list.map(([it, i]) => rowHtml(it, i)).join("")}</div>` : "";
+  $("#listBody").innerHTML =
+    group("Til retterne", food) +
+    group("Basisvarer du plejer at købe", basics) +
+    group("Har du det i skabet?", pantry);
+  const body = $("#listBody");
+  body.querySelectorAll("[data-check]").forEach((el) => el.onchange = () => { rows[+el.dataset.check].checked = el.checked; updateBar(); });
+  body.querySelectorAll("[data-inc]").forEach((el) => el.onclick = () => { const it = rows[+el.dataset.inc]; it.quantity = Math.min(50, it.quantity + 1); it.checked = true; renderList(); });
+  body.querySelectorAll("[data-dec]").forEach((el) => el.onclick = () => { const it = rows[+el.dataset.dec]; it.quantity = Math.max(1, it.quantity - 1); renderList(); });
+  body.querySelectorAll("[data-find]").forEach((el) => el.onclick = () => findAlt(+el.dataset.find));
+  updateBar();
+}
+
+async function findAlt(idx) {
+  const it = allRows()[idx]; const box = $("#swap-" + idx);
+  box.classList.remove("hidden");
+  box.innerHTML = `<div class="row"><input type="text" class="grow" value="${esc(it.name)}"><button class="small">Søg</button></div><div class="res"></div>`;
+  const input = box.querySelector("input"); const res = box.querySelector(".res");
+  const run = async () => {
+    res.innerHTML = `<span class="muted"><span class="spinner"></span> Søger…</span>`;
+    try {
+      const r = await api("/api/search?q=" + encodeURIComponent(input.value));
+      if (!r.products.length) { res.innerHTML = `<span class="muted">Ingen resultater. Prøv et kortere ord.</span>`; return; }
+      res.innerHTML = r.products.map((p, j) => `<div class="opt" data-j="${j}">
+        <span>${esc(p.name)} <span class="muted">${esc(p.unit_size)}${p.is_organic ? " · øko" : ""}${p.is_on_discount ? " · tilbud" : ""}${p.available ? "" : " · udsolgt"}</span></span>
+        <span class="price">${kr(p.price)}</span></div>`).join("");
+      res.querySelectorAll(".opt").forEach((o) => o.onclick = () => {
+        it.product = r.products[+o.dataset.j]; it.checked = true; it.source = "search"; it.note = "Valgt af dig"; renderList(); });
+    } catch (e) { res.innerHTML = `<span class="muted">${esc(e.message)}</span>`; }
+  };
+  box.querySelector("button").onclick = run;
+  input.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); run(); } };
+  run();
+}
+
+function selected() { return allRows().filter((it) => it.checked && it.product); }
+
+function updateBar() {
+  const sel = selected();
+  const total = sel.reduce((s, it) => s + (it.product.price || 0) * it.quantity, 0);
+  $("#bar").style.display = S.list ? "block" : "none";
+  $("#barCount").textContent = `${sel.length} varer`;
+  $("#barTotal").textContent = total ? `· ca. ${kr(total)}` : "";
+  $("#toCart").disabled = !sel.length;
+}
+
+async function toCart() {
+  const sel = selected();
+  $("#confirmText").textContent = `${sel.length} varer bliver lagt i din kurv på nemlig.com.`;
+  $("#confirmDlg").showModal();
+}
+
+async function confirmCart() {
+  const btn = $("#okCart"); btn.disabled = true; btn.innerHTML = `<span class="spinner"></span> Lægger i kurv…`;
+  try {
+    const items = selected().map((it) => ({ product_id: String(it.product.id), quantity: it.quantity, name: it.product.name, price: it.product.price }));
+    const r = await api("/api/cart", { items });
+    $("#confirmDlg").close();
+    const ok = r.result.success.length, bad = r.result.failed.length;
+    $("#doneTitle").textContent = bad ? "Næsten klar" : "Kurven er klar 🎉";
+    $("#doneBody").innerHTML = `<p>${ok} varer er lagt i kurven.${bad ? ` ${bad} varer fejlede.` : ""}</p>
+      <p>I kurven nu: <strong>${r.cart.count} varer · ${kr(r.cart.total)}</strong>${r.cart.delivery ? ` + levering ${kr(r.cart.delivery)}` : ""}</p>
+      ${r.cart.delivery_time ? `<p class="muted">${esc(r.cart.delivery_time)}</p>` : ""}
+      ${S.status.demo ? `<p class="muted">Demo: intet er sendt til nemlig.com.</p>` : ""}`;
+    $("#basketLink").href = r.basket_url;
+    $("#doneDlg").showModal();
+  } catch (e) { toast(e.message); }
+  finally { btn.disabled = false; btn.textContent = "Ja, læg i kurv"; }
+}
+
+$("#loginForm").onsubmit = async (e) => {
+  e.preventDefault();
+  try { await api("/api/login", { username: $("#user").value, password: $("#pass").value });
+    $("#pass").value = ""; S.status = await api("/api/status"); start(); }
+  catch (err) { toast(err.message); }
+};
+$("#logoutBtn").onclick = async () => { await api("/api/logout", {}); location.reload(); };
+$("#newPlan").onclick = newPlan;
+$("#count").onchange = () => { saveSettings(); newPlan(); };
+$("#persons").onchange = saveSettings;
+$("#makeList").onclick = makeList;
+$("#toCart").onclick = toCart;
+$("#okCart").onclick = confirmCart;
+$("#cancelCart").onclick = () => $("#confirmDlg").close();
+$("#importForm").onsubmit = async (e) => {
+  e.preventDefault(); const url = $("#importUrl").value.trim(); if (!url) return;
+  toast("Henter opskrift…", 2000);
+  try { const r = await api("/api/recipes/import", { url }); S.plan.push(r); $("#importUrl").value = ""; renderPlan(); toast(`Tilføjet: ${r.title}`); }
+  catch (err) { toast(err.message, 5000); }
+};
+boot().catch((e) => toast(e.message));
+</script>
+</body>
+</html>
