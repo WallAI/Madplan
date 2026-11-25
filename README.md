@@ -63,3 +63,11 @@ Hentede ordrer bliver gemt i `~/.madplan/`, så appen ikke henter dem igen.
 pip install -e ".[dev]"
 pytest
 ```
+
+## Demo-side uden server
+
+Byg én HTML-fil med demo-data, som kan åbnes direkte i en browser:
+
+```bash
+python scripts/build_preview.py madplan-demo.html
+```
